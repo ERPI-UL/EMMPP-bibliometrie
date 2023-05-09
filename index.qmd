@@ -1,10 +1,14 @@
 ---
 title: "Bibliometric Analysis for ERPI"
+theme: yeti
 format:
   html:
     toc: true
     number-sections: true
     code-copy: true
+    code-fold: true
+    code-summary: "Show the code"
+    df-print: paged
 ---
 
 
@@ -12,21 +16,35 @@ format:
 #| echo: false
 #| include: false
 
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
+# Libraries to use
 library(tidyverse)
+library(wordcloud2)
 library(readxl)
+
+# Global variables
 ERPI <- list()
 ```
 
+
+# Analyse selon la base de donnes EMPP
 ## Loading the data
 
 We read the data from EMPP `
 
 ```{r}
+#| echo: true
 # Loading data
 EMPP_1 <- read_excel(path="data/2023_03_01_corpus_empp.xls")
 EMPP_2 <- read_excel(path="data/Base_EMPP_LAB_2016_2022.xlsx")
+
+# Database for ERPI
+EMMPP.ERPI <- EMPP_2 %>% filter(Laboratoire=="ERPI") %>% select(PubYear, DocType,  ArticleTitle, Authors) %>% arrange(desc(PubYear))
+
+# Ploting the table
+EMMPP.ERPI
+
 ```
 
 
@@ -35,7 +53,8 @@ EMPP_2 <- read_excel(path="data/Base_EMPP_LAB_2016_2022.xlsx")
 ## Wordcloud Keywords
 
 ```{r}
-library(wordcloud2)
+#| echo: true
+
 ERPI$Wordcloud <- 
    EMPP_2 %>% filter(Laboratoire=="ERPI") %>% 
    pull(AuthKeywords) %>% 
@@ -53,6 +72,35 @@ ERPI$Wordcloud
 
 ```
 
+
+## Nombre de publications par an
+
+
+```{r}
+ERPI$Production <- 
+   EMPP_2 %>% filter(Laboratoire=="ERPI") %>% select(PubYear, DocType) %>% 
+   separate(col = DocType, into = c("DocType", "EarlyAcces"), sep = ";" ) %>% select(-EarlyAcces) %>% 
+   group_by(PubYear, DocType) %>% tally(name = "Quantity") %>% 
+   ggplot(aes(x=PubYear, y=Quantity, color = DocType )) +
+   geom_line() + geom_point() +
+   labs(x="Années", 
+        y="Nombre des documents", 
+        title = "Production scientifique ERPI", 
+        subtitle = "Articles, Conferences  et autres",
+        caption =  paste0("Denière mise à jour: ", format(Sys.time(), '%d/%m/%Y') )) +
+   # scale_colour_discrete(name  ="Total par type\nde publication",
+   #                       breaks=c("ART", "COMM", "THESE"),
+   #                       labels=c(paste0("Articles = ", total$total[1]),
+   #                                paste0("Conferences = ", total$total[2]),
+   #                                paste0("Phd Thèses = ", total$total[3])
+   #                       )) +
+   # scale_shape_discrete(name  ="Type de document",
+   #                       breaks=c("ART", "COMM", "THESE"),
+   #                       labels=c("Article", "Conferences", "Phd Thèses"))
+   coord_cartesian(ylim = c(0, 20)) +
+   theme_minimal()
+```
+
 ## Nombre de publications par an et par type de document
 
 ```{r}
@@ -61,13 +109,12 @@ ERPI$Wordcloud
 
 We read also the data from HAL for ERPI
 
-```{r}
+```{r, message=FALSE}
 
 HAL <- 
    read_csv("data/2023-05-09-HAL-ERPI-UL.csv") %>% 
    set_names("ID_HAL", "Type.doc", "DOI", "Title", "Authors", "Journal", "Publisher", "Conference", "Year", "Year_conf", "Keywords") 
 
-names(HAL)
 ```
 
 
