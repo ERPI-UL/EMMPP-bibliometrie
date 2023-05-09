@@ -1,0 +1,69 @@
+---
+title: "Bibliometric Analysis for ERPI"
+format: html
+---
+
+
+```{r setup}
+#| echo: false
+#| include: false
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(readxl)
+ERPI <- list()
+```
+
+## Loading the data
+
+We read the data from EMPP `
+
+```{r}
+# Loading data
+EMPP_1 <- read_excel(path="data/2023_03_01_corpus_empp.xls")
+EMPP_2 <- read_excel(path="data/Base_EMPP_LAB_2016_2022.xlsx")
+```
+
+
+
+
+## Wordcloud Keywords
+
+```{r}
+library(wordcloud2)
+ERPI$Wordcloud <- 
+   EMPP_2 %>% filter(Laboratoire=="ERPI") %>% 
+   pull(AuthKeywords) %>% 
+   tolower() %>% 
+   strsplit( split=c(";")) %>% 
+   unlist() %>% 
+   str_trim( side = c("left")) %>% 
+   as_tibble() %>% 
+   group_by(value) %>% 
+   drop_na() %>% 
+   tally(sort = TRUE, name = "Frequency") %>% 
+   wordcloud2(shape = 'circle', size=0.3 ) 
+
+ERPI$Wordcloud
+
+```
+
+## Nombre de publications par an et par type de document
+
+```{r}
+
+```
+
+We read also the data from HAL for ERPI
+
+```{r}
+
+HAL <- 
+   read_csv("data/2023-05-09-HAL-ERPI-UL.csv") %>% 
+   set_names("ID_HAL", "Type.doc", "DOI", "Title", "Authors", "Journal", "Publisher", "Conference", "Year", "Year_conf", "Keywords") 
+
+names(HAL)
+```
+
+
