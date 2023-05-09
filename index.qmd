@@ -66,7 +66,7 @@ ERPI$Wordcloud <-
    group_by(value) %>% 
    drop_na() %>% 
    tally(sort = TRUE, name = "Frequency") %>% 
-   wordcloud2(shape = 'circle', size=0.3 ) 
+   wordcloud2(shape = 'circle', size=0.4 ) 
 
 ERPI$Wordcloud
 
@@ -99,6 +99,8 @@ ERPI$Production <-
    #                       labels=c("Article", "Conferences", "Phd Thèses"))
    coord_cartesian(ylim = c(0, 20)) +
    theme_minimal()
+
+ERPI$Production
 ```
 
 ## Nombre de publications par an et par type de document
