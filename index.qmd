@@ -1,6 +1,10 @@
 ---
 title: "Bibliometric Analysis for ERPI"
-format: html
+format:
+  html:
+    toc: true
+    number-sections: true
+    code-copy: true
 ---
 
 
